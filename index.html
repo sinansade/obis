@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğrenci Takip Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Öğrenci Takip Sistemi</h1>
+        
+        <!-- İstatistik Kartı -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Genel İstatistikler</h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="sistem.istatistikDetayGoster()">
+                    Detaylı İstatistikler
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 id="toplamOgrenci">0</h3>
+                        <p class="text-muted">Toplam Öğrenci</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 id="toplamDers">0</h3>
+                        <p class="text-muted">Toplam Ders</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 id="toplamGorusme">0</h3>
+                        <p class="text-muted">Toplam Veli Görüşmesi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Öğrenci Ekleme Formu'ndan önce ekleyin -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <input type="text" class="form-control" id="aramaIsim" placeholder="İsme göre ara...">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control" id="aramaSinif" placeholder="Sınıfa göre ara...">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select class="form-control" id="aramaOgretmen">
+                            <option value="">Tüm Öğretmenler</option>
+                            <option value="Sinan SADE">Sinan SADE</option>
+                            <option value="Havva Nur Aydın">Havva Nur Aydın</option>
+                            <option value="Burçak Özkaraman">Burçak Özkaraman</option>
+                            <option value="Seda Çomak">Seda Çomak</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-secondary w-100" onclick="sistem.filtreleriTemizle()">
+                            Temizle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Öğrenci Ekleme Formu -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Yeni Öğrenci Ekle</h5>
+            </div>
+            <div class="card-body">
+                <form id="ogrenciForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Öğrenci Adı Soyadı:</label>
+                            <input type="text" class="form-control" id="ogrenciAdi" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Sınıf:</label>
+                            <input type="text" class="form-control" id="sinif" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Öğretmen:</label>
+                            <select class="form-control" id="ogretmen" required>
+                                <option value="">Öğretmen Seçiniz</option>
+                                <option value="Sinan SADE|Matematik">Sinan SADE - Matematik</option>
+                                <option value="Havva Nur Aydın|İngilizce">Havva Nur Aydın - İngilizce</option>
+                                <option value="Burçak Özkaraman|Türkçe">Burçak Özkaraman - Türkçe</option>
+                                <option value="Seda Çomak|Fen Bilgisi">Seda Çomak - Fen Bilgisi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Öğrenci Ekle</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Öğrenci Kartları -->
+        <div id="ogrenciKartlari" class="row">
+            <!-- Kartlar JavaScript ile buraya eklenecek -->
+        </div>
+    </div>
+
+    <!-- Ders Kaydı Modalı -->
+    <div class="modal fade" id="dersKaydiModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Ders Kaydı</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="dersKaydiForm">
+                        <input type="hidden" id="dersOgrenciId">
+                        <div class="mb-3">
+                            <label>Öğretmen:</label>
+                            <select class="form-control" id="dersKaydiOgretmen" required>
+                                <option value="">Öğretmen Seçiniz</option>
+                                <option value="Sinan SADE|Matematik">Sinan SADE - Matematik</option>
+                                <option value="Havva Nur Aydın|İngilizce">Havva Nur Aydın - İngilizce</option>
+                                <option value="Burçak Özkaraman|Türkçe">Burçak Özkaraman - Türkçe</option>
+                                <option value="Seda Çomak|Fen Bilgisi">Seda Çomak - Fen Bilgisi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tarih:</label>
+                            <input type="date" class="form-control" id="dersTarih" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Saat:</label>
+                            <input type="time" class="form-control" id="dersSaat" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Konu:</label>
+                            <input type="text" class="form-control" id="dersKonu" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Veli Görüşmesi Modalı -->
+    <div class="modal fade" id="veliGorusmesiModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Veli Görüşmesi Kaydı</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="veliGorusmesiForm">
+                        <input type="hidden" id="veliOgrenciId">
+                        <input type="hidden" id="veliGorusmesiId">
+                        <div class="mb-3">
+                            <label>Görüşmeyi Yapan Öğretmen:</label>
+                            <select class="form-control" id="gorusmeYapanOgretmen" required>
+                                <option value="">Öğretmen Seçiniz</option>
+                                <option value="Sinan SADE">Sinan SADE</option>
+                                <option value="Havva Nur Aydın">Havva Nur Aydın</option>
+                                <option value="Burçak Özkaraman">Burçak Özkaraman</option>
+                                <option value="Seda Çomak">Seda Çomak</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tarih:</label>
+                            <input type="date" class="form-control" id="veliTarih" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Saat:</label>
+                            <input type="time" class="form-control" id="veliSaat" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Görüşme Notu:</label>
+                            <textarea class="form-control" id="veliNot" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Öğrenci Detay Modalı -->
+    <div class="modal fade" id="ogrenciDetayModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Öğrenci Detayları</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Öğrenci Bilgileri</h6>
+                            <div id="ogrenciDetayBilgi"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Tüm Ders Kayıtları</h6>
+                            <div id="ogrenciDersKayitlari" class="detay-liste"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6>Tüm Veli Görüşmeleri</h6>
+                            <div id="ogrenciVeliGorusmeleri" class="detay-liste"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mevcut Öğrenci Uyarı Modalı -->
+    <div class="modal fade" id="mevcutOgrenciModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mevcut Öğrenci Bulundu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bu isimde bir öğrenci zaten kayıtlı. Ne yapmak istersiniz?</p>
+                    <div id="mevcutOgrenciDetay" class="alert alert-info">
+                        <!-- Mevcut öğrenci detayları buraya gelecek -->
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-primary" onclick="sistem.dersKaydiModalAcMevcut()">
+                            Bu Öğrenciye Ders Ekle
+                        </button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                            İptal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Öğrenci Silme Onay Modalı -->
+    <div class="modal fade" id="silmeOnayModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Öğrenci Kaydını Sil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bu öğrenci kaydını silmek istediğinizden emin misiniz?</p>
+                    <p class="text-danger">Bu işlem geri alınamaz!</p>
+                    <div id="silinecekOgrenciDetay" class="alert alert-warning">
+                        <!-- Silinecek öğrenci detayları buraya gelecek -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-danger" onclick="sistem.ogrenciSil()">Sil</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İstatistik Detay Modalı -->
+    <div class="modal fade" id="istatistikDetayModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detaylı İstatistikler</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Filtre Formu -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form id="istatistikFiltreForm" onsubmit="event.preventDefault(); sistem.istatistikleriFiltrele();">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label>Öğretmen:</label>
+                                        <select class="form-control" id="istatistikOgretmen">
+                                            <option value="">Tüm Öğretmenler</option>
+                                            <option value="Sinan SADE">Sinan SADE</option>
+                                            <option value="Havva Nur Aydın">Havva Nur Aydın</option>
+                                            <option value="Burçak Özkaraman">Burçak Özkaraman</option>
+                                            <option value="Seda Çomak">Seda Çomak</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label>Başlangıç Tarihi:</label>
+                                        <input type="date" class="form-control" id="istatistikBaslangic">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label>Bitiş Tarihi:</label>
+                                        <input type="date" class="form-control" id="istatistikBitis">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Filtrele</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- İstatistik Sonuçları -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Ders İstatistikleri</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="dersIstatistikleri"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Veli Görüşmesi İstatistikleri</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="gorusmeIstatistikleri"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Günlük Detaylı Rapor</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="gunlukRapor" class="detay-liste"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Öğretmen Yönetimi Modalı -->
+    <div class="modal fade" id="ogretmenYonetimiModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Öğretmen Yönetimi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ogretmenForm">
+                        <input type="hidden" id="ogretmenId">
+                        <div class="mb-3">
+                            <label>Öğretmen Adı:</label>
+                            <input type="text" class="form-control" id="ogretmenAdi" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Branş:</label>
+                            <input type="text" class="form-control" id="ogretmenBrans" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </form>
+                    <hr>
+                    <div id="ogretmenListesi" class="mt-3">
+                        <!-- Öğretmenler burada listelenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="credit-text">
+                <p class="mb-2">
+                    Bu proje, <span class="highlight">Havva Nur Aydın</span>'ın eğitim vizyonu ve 
+                    <span class="highlight">Sinan Sade</span>'nin değerli yönlendirmeleriyle şekillenmiştir.
+                </p>
+                <p class="signature">
+                    Cursor AI teknolojisi ile geliştirilmiştir | © 2024
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
